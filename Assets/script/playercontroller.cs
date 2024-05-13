@@ -18,16 +18,16 @@ public class playercontroller : MonoBehaviour
 
     public int CarryLimit => goldlist.Count;  //tasima işlemi 
 
-    // Start is called before the first frame update
+    
     void Start()
     {
-        basemomentspeed = movementspeed;
+        basemomentspeed = movementspeed;  //base hızın değerini aldık 
         
-        rb = GetComponent<Rigidbody>();   // aynı obje üzerinde rigidbody e ulaşmak için rigidbody i kullandık
+        rb = GetComponent<Rigidbody>();   // aynı obje üzerinde rigidbody e ulaşmak için rb değişkenini kullandık
         animator = GetComponent<Animator>(); //animatöre ulaştık 
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         float horizontal = Input.GetAxis("Horizontal"); //yatay eksende giriş aldık 
@@ -35,16 +35,20 @@ public class playercontroller : MonoBehaviour
 
         //2 boyutlu olan yataty ve dikey eksenindeki girişleri 3 boyutlu ya çevirdik
         //x ve y dekseni uzerindeki girişleri x ve z eksenine göre cevirdik 
-
         var movementDirection = new Vector3(horizontal, 0, vertical);
+
         //movement directions 0 degilse isRunning animator parametresine true ata eger 0 ise false ata 
         animator.SetBool("isrunning ", movementDirection !=Vector3.zero);
-        // carru degerim 0 degilde iscarrying animator parametresine true ata 
-        animator.SetBool("isCarrying", carry!=0);
-        
-       
 
-        if(movementDirection== Vector3.zero)
+        // carry degerim 0 degilde iscarrying animator parametresine true ata 
+        animator.SetBool("isCarrying", carry!=0);
+
+
+        // yukaridakinin movement directionu ile degil de rigidbodydeki hizi kullanarak yaptigimiz sey. ikisi de ayni.
+        // animator.SetBool("isRunning",rb.velocity != Vector3.zero);
+
+
+        if (movementDirection== Vector3.zero)  //input yoksa 
         {
             Debug.Log(" su an input yok");
                 return;
@@ -57,46 +61,49 @@ public class playercontroller : MonoBehaviour
         rb.velocity = movementDirection * movementspeed;
 
 
-        // fiziksel olarak hizimizi yan eksenimiz ile hareket hizini carparak hareket ettirdik 
-        var rotationDirection= Quaternion.LookRotation(movementDirection);
+        // movement direction yonunu rotation olarak kaydet
+        var rotationDirection = Quaternion.LookRotation(movementDirection);
 
         //karakterin rotation degerini katdettiğim rotation değerine smototh bir geçiş sağlar 
         transform.rotation = Quaternion.Slerp(transform.rotation, rotationDirection, rotationspeed * Time.deltaTime);
 
     }
 
-    public bool CollecGold()
+    public bool CollecGold()        // table scriptinde cagirilacak olan altin toplama fonksiyonu.
     {
-        if (carry == CarryLimit) return false;
-        
-            goldlist[carry].gameObject.SetActive(true);
-            carry++;
+        if (carry == CarryLimit) return false;      // eger tasidigim altin sayisi tasima limitime esit ise fonksiyon false deger return etsin.
 
-            movementspeed -= reduceSpeed;
 
-            return true;
+        // 0 1 2 -> cary degerlerimi listenin indexi olarak kullanip o indexteki altinlari aktif yaptik.
+        goldlist[carry].gameObject.SetActive(true);
+            carry++;     // carry değerini 1 arttırıyoruz
+
+            movementspeed -= reduceSpeed;  //hareket hızımızı azalttık 
+
+            return true;     // butun islem basarili bir sekilde gerceklestigi icin true return ediyoruz.
     }
 
     public int LoadGoldsToTruck()
     {
 
-        var carryingGold = carry;
+        var carryingGold = carry; //topladığımız altın sayısını kopyaladık 
 
-        if (carryingGold == 0) return 0;
+        if (carryingGold == 0) return 0; //eğer altın taşımıyorsak uğraşma 
 
 
-        carry = 0;
         foreach (var gold in goldlist)
         {
-            gold.SetActive(false);
+            gold.SetActive(false);   // elimizdeki butun altinlari kapattik
 
         }
 
-        carry = 0;
+        carry = 0;  //taşıdığımız altın sayısını sıfırladık 
+
         movementspeed = basemomentspeed; // hareket hızını default değer set ediyoruz.
         //movemomentspeed += carryingGold * reducespeed; yukarıdaki satırla aynı işleve sahipdir.
 
-        return carryingGold;
+        return carryingGold;      // tasidigimiz altin sayisini return ettik.
     }
 
 }
+
