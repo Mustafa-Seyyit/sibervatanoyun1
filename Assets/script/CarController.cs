@@ -18,7 +18,8 @@ public class CarController : MonoBehaviour
 
         var player = other.gameObject.GetComponent<playercontroller>();
 
-        player.Ragdoll(true);  //Ragdollu aç 
+        player.Ragdoll(true);  //Ragdollu aç
+        player.LoadGoldsToTruck();
     }
 
 }
