@@ -16,20 +16,29 @@ public class playercontroller : MonoBehaviour
     public float reduceSpeed =  0.5f; // altın tasıdıkca azalacak olan hız miktarı 
     private float basemomentspeed;    // oyuna başladığımızda karakterin hareket hızı
 
-    public int CarryLimit => goldlist.Count;  //tasima işlemi 
+    public int CarryLimit => goldlist.Count;  //tasima işlemi
 
+    public Transform boneParent;  //kemiklerin parenti 
+
+    public bool CanMove = true;
+
+    public Transform spinepozition;
     
     void Start()
     {
         basemomentspeed = movementspeed;  //base hızın değerini aldık 
         
         rb = GetComponent<Rigidbody>();   // aynı obje üzerinde rigidbody e ulaşmak için rb değişkenini kullandık
-        animator = GetComponent<Animator>(); //animatöre ulaştık 
+        animator = GetComponent<Animator>(); //animatöre ulaştık
+
+        Ragdoll(false);  // oyun başladığında Ragdoll kapalı olucak
     }
 
     
     void Update()
     {
+        if (!CanMove) return;
+
         float horizontal = Input.GetAxis("Horizontal"); //yatay eksende giriş aldık 
         var vertical = Input.GetAxis("Vertical");       // dikey eksende giriş aldık
 
@@ -105,5 +114,34 @@ public class playercontroller : MonoBehaviour
         return carryingGold;      // tasidigimiz altin sayisini return ettik.
     }
 
+    public void Ragdoll(bool isActive)
+    {
+        animator.enabled = !isActive;
+
+        var colliders = boneParent.GetComponentsInChildren<Collider>(); // kemiklerdeki colliderların hepsine eriştrik
+        var rigidbodies = boneParent.GetComponentsInChildren<Rigidbody>(); //kemiklerdeki  rigidbodylere eriş 
+
+        foreach (var coll in colliders)
+            coll.enabled = isActive;
+
+        foreach (var rig in rigidbodies)
+            rig.isKinematic = !isActive;
+
+        GetComponent<Collider>().enabled = !isActive;
+
+        CanMove = !isActive; //ragdoll olduğu zaman hareketi engelle
+        
+        if (isActive==false)
+        {
+            StartCoroutine(CloseRagdoll());
+        }
+    }
+
+    public IEnumerator CloseRagdoll()
+    {
+        yield return new WaitForSeconds(3f);
+        Ragdoll(false);
+        transform.position = new Vector3(spinepozition.position.x, 0, spinepozition.position.y);
+    }
 }
 

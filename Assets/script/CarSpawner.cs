@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class CarSpawner : MonoBehaviour
 {
-    public List<GameObject> CarPrefabs;
+    public List<GameObject> CarPrefabs;  //araba prefablarının tutuldığu liste
 
-    private float mintime=1f, maxtime=3f;
+    private float mintime=1f, maxtime=3f;  //spawn olucak arabaların kaç saniye aralıklarla spawn olucağı
 
-    private float timer;
+    private float timer; 
     private float spawnTime;
 
     private void Start()

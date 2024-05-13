@@ -12,4 +12,13 @@ public class CarController : MonoBehaviour
         transform.Translate(Vector3.forward * moveSpeed*Time.deltaTime); 
     }
 
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.tag == "player") return;
+
+        var player = other.gameObject.GetComponent<playercontroller>();
+
+        player.Ragdoll(true);  //Ragdollu aç 
+    }
+
 }
